@@ -128,7 +128,7 @@ action-hero/
 
 **🌱 Foundations**
 
-- [ ] **01** — Anatomy: `on`, `jobs`, `steps`
+- [x] **01** — Anatomy: `on`, `jobs`, `steps`
 - [ ] **02** — Triggers: push, PR, schedule, manual dispatch, `paths`
 - [ ] **03** — Contexts & expressions
 
