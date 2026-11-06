@@ -1,0 +1,64 @@
+# ═══════════════════════════════════════════════════════════
+# ⏰ 02 — Triggers (المشغّلات)
+# Lesson / الدرس: docs/02-triggers.md · docs/02-triggers.ar.md
+# Concepts: push · pull_request · schedule · workflow_dispatch · paths
+# ═══════════════════════════════════════════════════════════
+name: 02 · Triggers
+
+on:
+  # 1) عند الدفع، مع فلاتر للفرع والمسارات
+  #    (لا يمكن الجمع بين paths و paths-ignore لنفس الحدث)
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/02-triggers.yml"
+
+  # 2) عند فتح/تحديث Pull Request نحو main
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/02-triggers.yml"
+
+  # 3) جدولة زمنية — الوقت دائمًا بتوقيت UTC!
+  #    صيغة cron: دقيقة ساعة يوم-في-الشهر شهر يوم-في-الأسبوع
+  schedule:
+    - cron: "0 6 * * 1" # كل اثنين 06:00 UTC
+
+  # 4) تشغيل يدوي مع مدخلات
+  workflow_dispatch:
+    inputs:
+      name:
+        description: اسم الشخص الذي نرحّب به
+        required: false
+        default: "Abdullah"
+      shout:
+        description: هل نكتب الاسم بحروف كبيرة؟
+        type: boolean
+        default: false
+
+jobs:
+  show-trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🎯 ما الذي شغّلني؟
+        run: |
+          echo "Event: ${{ github.event_name }}"
+
+      # if: يشغّل الخطوة فقط عند تحقق الشرط
+      - name: ⏰ تشغيل مجدول
+        if: github.event_name == 'schedule'
+        run: echo "هذا تشغيل تلقائي من الجدول 🤖"
+
+      - name: 🖱️ تشغيل يدوي
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          NAME: ${{ inputs.name }} # نمرّر المدخل عبر env (أكثر أمانًا)
+          SHOUT: ${{ inputs.shout }}
+        run: |
+          if [ "$SHOUT" = "true" ]; then NAME="${NAME^^}"; fi
+          echo "أهلاً $NAME 👋"
+
+      - name: 🔀 تشغيل من PR
+        if: github.event_name == 'pull_request'
+        run: echo "PR رقم ${{ github.event.pull_request.number }}"

@@ -129,7 +129,7 @@ action-hero/
 **🌱 Foundations**
 
 - [x] **01** — Anatomy: `on`, `jobs`, `steps`
-- [ ] **02** — Triggers: push, PR, schedule, manual dispatch, `paths`
+- [x] **02** — Triggers: push, PR, schedule, manual dispatch, `paths`
 - [ ] **03** — Contexts & expressions
 
 **🛠️ Core CI**
