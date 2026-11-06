@@ -1,0 +1,36 @@
+# ═══════════════════════════════════════════════════════════
+# 👋 01 — Anatomy (تشريح الـ Workflow)
+# Lesson / الدرس: docs/01-anatomy.md · docs/01-anatomy.ar.md
+# Concepts: name · on · jobs · runs-on · steps · run · uses
+# ═══════════════════════════════════════════════════════════
+name: 01 · Hello # 1) الاسم في تبويب Actions
+
+on: # 2) متى يعمل؟
+  push:
+    branches: [main]
+  workflow_dispatch: # زر Run workflow
+
+jobs: # 3) ماذا يعمل؟
+  hello: # معرّف الـ job (تشير إليه needs)
+    runs-on: ubuntu-latest
+    steps: # 4) الخطوات بالترتيب
+      - name: 👋 run — أمر shell
+        run: echo "Hello from Action Hero 🦸"
+
+      - name: 📂 قبل checkout — المجلد فارغ
+        run: ls -la
+
+      - name: 📥 uses — action جاهز
+        uses: actions/checkout@v7
+
+      - name: 📂 بعد checkout — ملفات المستودع
+        run: ls -la
+
+      - name: ℹ️ معلومات من الـ contexts
+        run: |
+          echo "OS     : ${{ runner.os }}"
+          echo "Repo   : ${{ github.repository }}"
+          echo "Branch : ${{ github.ref_name }}"
+          echo "SHA    : ${{ github.sha }}"
+          echo "Actor  : ${{ github.actor }}"
+          echo "Event  : ${{ github.event_name }}"
