@@ -1,0 +1,73 @@
+# ═══════════════════════════════════════════════════════════
+# 🧮 03 — Contexts & Expressions (السياقات والتعبيرات)
+# Lesson / الدرس: docs/03-contexts.md · docs/03-contexts.ar.md
+# Concepts: github · env · steps · needs · functions · injection-safe env
+# ═══════════════════════════════════════════════════════════
+name: 03 · Contexts
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/03-contexts.yml"]
+  pull_request:
+    paths: [".github/workflows/03-contexts.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GREETING: hello # context: env
+
+jobs:
+  contexts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # github.* و runner.* و env.*
+      - name: 🧭 السياقات الأساسية
+        run: |
+          echo "event   : ${{ github.event_name }}"
+          echo "ref     : ${{ github.ref }}"
+          echo "runner  : ${{ runner.os }} / ${{ runner.arch }}"
+          echo "env     : ${{ env.GREETING }}"
+
+      # الدوال داخل التعبيرات (نواتجها آمنة: bool / hash / نص ثابت)
+      - name: 🧰 الدوال
+        run: |
+          echo "contains   : ${{ contains(github.ref, 'main') }}"
+          echo "startsWith : ${{ startsWith(github.ref, 'refs/heads/') }}"
+          echo "format     : ${{ format('{0}/{1}', github.repository_owner, github.event.repository.name) }}"
+          echo "hashFiles  : ${{ hashFiles('pnpm-lock.yaml') }}"
+
+      # steps.<id>.outputs
+      - name: 🏷️ خطوة تنتج قيمة
+        id: ver
+        run: echo "v=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: 🔗 steps context
+        run: echo "version = ${{ steps.ver.outputs.v }}"
+
+      # ✅ القيمة التي يتحكم بها غيرك تمر عبر env — لا داخل run
+      - name: 🛡️ عنوان الـ PR بأمان
+        if: github.event_name == 'pull_request'
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: echo "PR title = $TITLE"
+
+      # toJSON: اعرض السياق كاملًا (التوكن يظهر ***)
+      - name: 🔍 سياق github كاملًا
+        env:
+          GITHUB_CTX: ${{ toJSON(github) }}
+        run: |
+          echo "::group::github context"
+          echo "$GITHUB_CTX"
+          echo "::endgroup::"
+
+  # needs.<job>.result
+  after:
+    needs: contexts
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "contexts job result = ${{ needs.contexts.result }}"
