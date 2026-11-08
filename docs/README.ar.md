@@ -130,11 +130,11 @@ action-hero/
 
 - [x] **01** — التشريح: `on`، `jobs`، `steps`
 - [x] **02** — المشغّلات: push، PR، schedule، التشغيل اليدوي، `paths`
-- [ ] **03** — Contexts والتعبيرات
+- [x] **03** — Contexts والتعبيرات
 
 **🛠️ CI الأساسي**
 
-- [ ] **04** — CI: matrix (`include`)، `needs`، الكاش
+- [x] **04** — CI: matrix (`include`)، `needs`، الكاش
 - [ ] **05** — الشروط ومخرجات الـ jobs
 - [ ] **06** — الأسرار والمتغيرات وأقل الصلاحيات
 - [ ] **07** — Artifacts بين الـ jobs
