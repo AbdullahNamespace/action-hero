@@ -1,0 +1,38 @@
+# Composite action: pnpm + Node + frozen-lockfile install
+# Lesson / الدرس: docs/09-composite-actions.md · docs/09-composite-actions.ar.md
+name: Setup pnpm
+description: Install pnpm and Node, restore the pnpm cache, and install dependencies
+
+inputs:
+  node-version:
+    description: Node.js version
+    required: false
+    default: "22"
+  install:
+    description: Run `pnpm install --frozen-lockfile` ("true" / "false")
+    required: false
+    default: "true"
+
+outputs:
+  pnpm-version:
+    description: The installed pnpm version
+    value: ${{ steps.ver.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    # pnpm أولًا: الكاش في setup-node يحتاج pnpm مثبّتًا
+    - uses: pnpm/action-setup@v4
+
+    - uses: actions/setup-node@v7
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: pnpm
+
+    - if: inputs.install == 'true'
+      shell: bash # إلزامي لكل run داخل composite
+      run: pnpm install --frozen-lockfile
+
+    - id: ver
+      shell: bash
+      run: echo "version=$(pnpm --version)" >> "$GITHUB_OUTPUT"

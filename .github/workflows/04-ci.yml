@@ -1,0 +1,69 @@
+# ═══════════════════════════════════════════════════════════
+# ✅ 04 — CI · Matrix · Cache (التكامل المستمر)
+# Lesson / الدرس: docs/04-ci-matrix-cache.md · docs/04-ci-matrix-cache.ar.md
+# Concepts: matrix (include) · needs · cache · concurrency · composite action
+# ═══════════════════════════════════════════════════════════
+name: 04 · CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# أقل صلاحيات ممكنة: قراءة المحتوى فقط
+permissions:
+  contents: read
+
+# commit جديد أثناء تشغيل قديم → ألغِ القديم (يوفّر دقائق التشغيل)
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Job 1: فحص الكود (بالتوازي مع الباقي) ──
+  lint:
+    name: 🔎 Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-pnpm # composite action محلي (checkout قبله!)
+      - run: pnpm lint
+
+  # ── Job 2: الاختبارات على عدة إصدارات Node (matrix) ──
+  test:
+    name: 🧪 Unit tests (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    # الإصدار التجريبي لا يُفشل الـ workflow
+    continue-on-error: ${{ matrix.experimental || false }}
+    strategy:
+      fail-fast: false # لا توقف باقي التركيبات لو فشلت واحدة
+      matrix:
+        node: ["22", "24"] # Node 20 انتهى دعمه في أبريل 2026
+        include:
+          - node: "26" # تركيبة إضافية تجريبية
+            experimental: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: ${{ matrix.node }}
+      - run: pnpm test
+
+  # ── Job 3: اختبارات e2e ──
+  e2e:
+    name: 🌐 E2E tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-pnpm
+      - run: pnpm test:e2e
+
+  # ── Job 4: البناء — بعد نجاح الثلاثة السابقة ──
+  build:
+    name: 🏗️ Build
+    needs: [lint, test, e2e]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-pnpm
+      - run: pnpm build

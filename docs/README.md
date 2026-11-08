@@ -130,11 +130,11 @@ action-hero/
 
 - [x] **01** — Anatomy: `on`, `jobs`, `steps`
 - [x] **02** — Triggers: push, PR, schedule, manual dispatch, `paths`
-- [ ] **03** — Contexts & expressions
+- [x] **03** — Contexts & expressions
 
 **🛠️ Core CI**
 
-- [ ] **04** — CI: matrix (`include`), `needs`, caching
+- [x] **04** — CI: matrix (`include`), `needs`, caching
 - [ ] **05** — Conditionals & job outputs
 - [ ] **06** — Secrets, variables & least-privilege permissions
 - [ ] **07** — Artifacts between jobs
