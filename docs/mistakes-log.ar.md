@@ -222,3 +222,48 @@
 ```
 
 ---
+
+### 1. `No pnpm version is specified` عند تشغيل `pnpm/action-setup@v4`
+
+- **التاريخ:** 2026-11-08
+- **الدرس المرتبط:** [04 — CI · Matrix · Cache](04-ci-matrix-cache.ar.md) / [09 — Composite Actions](09-composite-actions.ar.md)
+- **العَرَض:** فشل خطوة `pnpm/action-setup@v4` برسالة:
+  ```
+  Error: No pnpm version is specified.
+  Please specify it by one of the following ways:
+    - in the GitHub Action config with the key "version"
+    - in the package.json with the key "packageManager"
+  ```
+- **السبب:** الإجراء لا يعرف أي إصدار من pnpm يجب تثبيته، ولم يكن هناك حقل `packageManager` في `package.json` ولا `version:` في الـ action.
+- **ما جرّبته قبل الحل:** إضافة `with: version:` في الـ action، لكن هذا قد يتعارض مع `packageManager` إن وُجد لاحقاً.
+- **الحل:** إضافة `"packageManager": "pnpm@12.16.1"` إلى `package.json` (باستخدام `pnpm pkg set packageManager="pnpm@12.16.1"`).
+- **الدرس المستفاد:** `pnpm/action-setup` يحتاج مصدراً واحداً واضحاً للإصدار، وأفضل مصدر هو `packageManager` في `package.json`.
+
+---
+
+### 2. `ERR_PNPM_FROZEN_LOCKFILE_WITH_OUTDATED_LOCKFILE`
+
+- **التاريخ:** 2026-11-08
+- **الدرس المرتبط:** [04 — CI · Matrix · Cache](04-ci-matrix-cache.ar.md)
+- **العَرَض:** فشل `pnpm install --frozen-lockfile` برسالة:
+  ```
+  ERR_PNPM_FROZEN_LOCKFILE_WITH_OUTDATED_LOCKFILE
+  Cannot update packageManagerDependencies with "frozen-lockfile" because the lockfile is not up to date
+  ```
+- **السبب:** أُضيف حقل `packageManager` إلى `package.json` دون تحديث `pnpm-lock.yaml` محلياً. وضع `--frozen-lockfile` يرفض التحديث التلقائي.
+- **ما جرّبته قبل الحل:** محاولة تشغيل `pnpm install` في CI بدون `--frozen-lockfile` (لكن هذا ليس الحل الصحيح).
+- **الحل:** تشغيل `pnpm install --no-frozen-lockfile` محلياً، ثم دفع `pnpm-lock.yaml` المحدّث مع `package.json`.
+- **الدرس المستفاد:** أي تغيير في `package.json` (خاصة `packageManager`) يتطلب تحديث ملف القفل محلياً قبل الدفع.
+
+---
+
+### 3. `Cannot find matching keyid` أو تعارض إصدار pnpm بين المحلي و CI
+
+- **التاريخ:** 2026-11-08
+- **الدرس المرتبط:** [04 — CI · Matrix · Cache](04-ci-matrix-cache.ar.md)
+- **العَرَض:** إصدار pnpm المحلي (`12.16.1`) قد لا يتطابق مع الإصدار المثبت في CI إن لم يُحدَّد بوضوح.
+- **السبب:** عدم وجود مصدر واحد للحقيقة (single source of truth) لإصدار pnpm.
+- **الحل:** تثبيت الإصدار في `packageManager` فقط، وتجنب `with: version:` في الـ action لتقليل التعارضات.
+- **الدرس المستفاد:** اجعل `packageManager` هو المصدر الوحيد لإصدار pnpm، وحدّث ملف القفل معه.
+
+---
