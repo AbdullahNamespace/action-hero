@@ -222,3 +222,49 @@
 ```
 
 ---
+
+### 1. `No pnpm version is specified` when running `pnpm/action-setup@v4`
+
+- **Date:** 2026-11-08
+- **Lesson:** [04 — CI · Matrix · Cache](04-ci-matrix-cache.md) / [09 — Composite Actions](09-composite-actions.md)
+- **Symptom:** The `pnpm/action-setup@v4` step failed with:
+  ```
+  Error: No pnpm version is specified.
+  Please specify it by one of the following ways:
+    - in the GitHub Action config with the key "version"
+    - in the package.json with the key "packageManager"
+  ```
+- **Cause:** The action didn't know which pnpm version to install. There was no `packageManager` field in `package.json` and no `version:` in the action config.
+- **What I tried first:** Adding `with: version:` to the action. This works, but it can later conflict with `packageManager` if both are set differently.
+- **Fix:** Added `"packageManager": "pnpm@12.16.1"` to `package.json` using `pnpm pkg set packageManager="pnpm@12.16.1"`.
+- **Takeaway:** `pnpm/action-setup` needs one clear source of truth for the version. The best source is `packageManager` in `package.json`.
+
+---
+
+### 2. `ERR_PNPM_FROZEN_LOCKFILE_WITH_OUTDATED_LOCKFILE`
+
+- **Date:** 2026-11-08
+- **Lesson:** [04 — CI · Matrix · Cache](04-ci-matrix-cache.md)
+- **Symptom:** `pnpm install --frozen-lockfile` failed with:
+  ```
+  ERR_PNPM_FROZEN_LOCKFILE_WITH_OUTDATED_LOCKFILE
+  Cannot update packageManagerDependencies with "frozen-lockfile" because the lockfile is not up to date
+  ```
+- **Cause:** I added the `packageManager` field to `package.json` but didn't update `pnpm-lock.yaml` locally. `--frozen-lockfile` refuses to update anything automatically.
+- **What I tried first:** Running `pnpm install` in CI without `--frozen-lockfile`. This is not the right fix; it hides the problem.
+- **Fix:** Ran `pnpm install --no-frozen-lockfile` locally, then committed the updated `pnpm-lock.yaml` together with `package.json`.
+- **Takeaway:** Any change to `package.json` (especially `packageManager`) requires updating the lockfile locally before pushing.
+
+---
+
+### 3. pnpm version mismatch between local and CI
+
+- **Date:** 2026-11-08
+- **Lesson:** [04 — CI · Matrix · Cache](04-ci-matrix-cache.md)
+- **Symptom:** The local pnpm version (`12.16.1`) might not match the version installed in CI if it isn't specified clearly.
+- **Cause:** No single source of truth for the pnpm version.
+- **What I tried first:** Setting `version:` in the action, but that duplicates the source of truth.
+- **Fix:** Pinned the version in `packageManager` only, and avoided `with: version:` in the action to reduce conflicts.
+- **Takeaway:** Make `packageManager` the single source of truth for the pnpm version, and update the lockfile with it.
+
+---

@@ -1,0 +1,85 @@
+# ═══════════════════════════════════════════════════════════
+# 🔀 05 — Conditionals & Job Outputs (الشروط والمخرجات)
+# Lesson / الدرس: docs/05-conditionals-outputs.md · docs/05-conditionals-outputs.ar.md
+# Concepts: if · success()/failure()/always() · continue-on-error
+#           GITHUB_OUTPUT · job outputs · GITHUB_STEP_SUMMARY
+# ═══════════════════════════════════════════════════════════
+name: 05 · Conditionals
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/05-conditionals.yml"]
+  pull_request:
+    paths: [".github/workflows/05-conditionals.yml"]
+  workflow_dispatch:
+    inputs:
+      fail:
+        description: هل نُفشل خطوة عمدًا لتجربة failure()؟
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Job 1: يحسب الإصدار ويعلنه كـ output ──
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.pkg.outputs.version }} # يعبر إلى jobs أخرى
+    steps:
+      - uses: actions/checkout@v7
+      - id: pkg
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+  # ── Job 2: يقرأ الـ output عبر needs ──
+  report:
+    needs: version
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - run: echo "Version → $VERSION"
+      - name: 📝 ملخص جميل في صفحة التشغيل
+        run: |
+          {
+            echo "### 📦 Version"
+            echo "\`$VERSION\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ── Job 3: الشروط ودوال الحالة ──
+  conditions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1️⃣ يعمل دائمًا (الافتراضي success())
+        run: echo "runs while everything before it succeeded"
+
+      - name: 2️⃣ على main فقط
+        if: github.ref == 'refs/heads/main'
+        run: echo "on main"
+
+      - name: 3️⃣ ليس PR
+        if: github.event_name != 'pull_request'
+        run: echo "not a pull request"
+
+      # continue-on-error: يفشل لكن الـ job يكمل ولا يُعتبر فاشلًا
+      - name: 4️⃣ يفشل ويكمل
+        continue-on-error: true
+        run: |
+          echo "::warning::this step fails but the job continues"
+          exit 1
+
+      - name: 5️⃣ فشل مقصود (عند fail=true)
+        if: inputs.fail
+        run: |
+          echo "::error::intentional failure"
+          exit 1
+
+      - name: 6️⃣ عند الفشل فقط
+        if: failure()
+        run: echo "🚨 a previous step failed"
+
+      - name: 7️⃣ دائمًا حتى لو فشل أو أُلغي
+        if: always()
+        run: echo "🧹 cleanup runs no matter what"

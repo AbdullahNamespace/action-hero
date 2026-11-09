@@ -135,7 +135,7 @@ action-hero/
 **🛠️ Core CI**
 
 - [x] **04** — CI: matrix (`include`), `needs`, caching
-- [ ] **05** — Conditionals & job outputs
+- [x] **05** — Conditionals & job outputs
 - [ ] **06** — Secrets, variables & least-privilege permissions
 - [ ] **07** — Artifacts between jobs
 - [ ] **08** — Concurrency & timeouts
