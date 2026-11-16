@@ -138,7 +138,7 @@ action-hero/
 - [x] **05** — Conditionals & job outputs
 - [x] **06** — Secrets, variables & least-privilege permissions
 - [x] **07** — Artifacts between jobs
-- [ ] **08** — Concurrency & timeouts
+- [x] **08** — Concurrency & timeouts
 
 **🚀 Delivery**
 
