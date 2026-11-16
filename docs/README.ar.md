@@ -137,7 +137,7 @@ action-hero/
 - [x] **04** — CI: matrix (`include`)، `needs`، الكاش
 - [x] **05** — الشروط ومخرجات الـ jobs
 - [x] **06** — الأسرار والمتغيرات وأقل الصلاحيات
-- [ ] **07** — Artifacts بين الـ jobs
+- [x] **07** — Artifacts بين الـ jobs
 - [ ] **08** — Concurrency والمهلات
 
 **🚀 التسليم**

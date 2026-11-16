@@ -1,0 +1,50 @@
+# ═══════════════════════════════════════════════════════════
+# 📦 07 — Artifacts (تمرير الملفات بين الـ jobs)
+# Lesson / الدرس: docs/07-artifacts.md · docs/07-artifacts.ar.md
+# Concepts: upload-artifact · download-artifact · retention · needs
+# ═══════════════════════════════════════════════════════════
+name: 07 · Artifacts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - ".github/workflows/07-artifacts.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # ── Job 1: بناء ورفع الناتج ──
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-pnpm
+      - run: pnpm build
+
+      - name: 📤 رفع مجلد dist
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist-${{ github.sha }} # الاسم يجب أن يكون فريدًا
+          path: dist/
+          retention-days: 3 # يُحذف تلقائيًا بعد 3 أيام
+          if-no-files-found: error # فشل صريح لو المجلد فارغ
+
+  # ── Job 2: runner مختلف تمامًا! لا يرى ملفات job 1 إلا عبر artifact ──
+  verify:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 تنزيل الناتج
+        uses: actions/download-artifact@v8
+        with:
+          name: dist-${{ github.sha }}
+          path: downloaded-dist
+
+      - name: ✅ التحقق من المحتوى
+        run: |
+          ls -R downloaded-dist
+          test -f downloaded-dist/main.js && echo "main.js موجود 🎉"

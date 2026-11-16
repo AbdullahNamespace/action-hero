@@ -137,7 +137,7 @@ action-hero/
 - [x] **04** — CI: matrix (`include`), `needs`, caching
 - [x] **05** — Conditionals & job outputs
 - [x] **06** — Secrets, variables & least-privilege permissions
-- [ ] **07** — Artifacts between jobs
+- [x] **07** — Artifacts between jobs
 - [ ] **08** — Concurrency & timeouts
 
 **🚀 Delivery**
