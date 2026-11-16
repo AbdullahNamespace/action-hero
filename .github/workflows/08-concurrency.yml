@@ -1,0 +1,53 @@
+# ═══════════════════════════════════════════════════════════
+# ⏱️ 08 — Concurrency & Timeouts (التزامن والمهلات)
+# Lesson / الدرس: docs/08-concurrency-timeouts.md · docs/08-concurrency-timeouts.ar.md
+# Concepts: concurrency.group · cancel-in-progress · timeout-minutes
+# جرّب: ادفع commit مرتين بسرعة وراقب إلغاء الأول
+# ═══════════════════════════════════════════════════════════
+name: 08 · Concurrency
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/08-concurrency.yml"]
+  workflow_dispatch:
+    inputs:
+      hang:
+        description: تجربة المهلة (خطوة تعلق دقيقتين لكن مهلتها دقيقة)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+# على مستوى الـ workflow: التشغيل الجديد يلغي القديم لنفس الفرع
+concurrency:
+  group: demo-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  slow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5 # مهلة الـ job كله (الافتراضي 360!)
+    steps:
+      - name: 🐢 عمل بطيء (~60 ثانية)
+        run: |
+          for i in $(seq 1 12); do
+            echo "tick $i/12"
+            sleep 5
+          done
+
+      - name: ⏳ خطوة تعلق (عند hang=true)
+        if: inputs.hang
+        timeout-minutes: 1 # مهلة الـ step
+        run: sleep 120
+
+  # على مستوى الـ job: بدون إلغاء — التشغيلات تصطف (مناسب للنشر)
+  queued:
+    needs: slow
+    runs-on: ubuntu-latest
+    concurrency:
+      group: demo-queue
+      cancel-in-progress: false
+    steps:
+      - run: echo "only one run of this job at a time; others wait in the queue"
