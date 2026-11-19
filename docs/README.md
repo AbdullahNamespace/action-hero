@@ -142,7 +142,7 @@ action-hero/
 
 **🚀 Delivery**
 
-- [ ] **09** — Composite actions
+- [x] **09** — Composite actions
 - [ ] **10** — Deploying to Firebase Hosting
 - [ ] **11** — PR preview channels
 - [ ] **12** — Reusable workflows

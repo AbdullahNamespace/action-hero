@@ -1,0 +1,49 @@
+# ═══════════════════════════════════════════════════════════
+# 🧩 09 — Composite Actions
+# Lesson / الدرس: docs/09-composite-actions.md · docs/09-composite-actions.ar.md
+# Concepts: runs.using: composite · inputs/outputs · shell · local action
+# ═══════════════════════════════════════════════════════════
+name: 09 · Composite
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/09-composite.yml"
+      - ".github/actions/setup-pnpm/**"
+  pull_request:
+    paths:
+      - ".github/workflows/09-composite.yml"
+      - ".github/actions/setup-pnpm/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  with-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7 # قبل أي action محلي!
+
+      - id: setup
+        uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: "24" # input
+
+      - name: 📤 قراءة output من الـ action
+        run: |
+          echo "pnpm : ${{ steps.setup.outputs.pnpm-version }}"
+          echo "node : $(node --version)"
+
+  without-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup-pnpm
+        with:
+          install: "false" # input اختياري بقيمة مختلفة
+
+      - name: 🔎 لا node_modules
+        run: test ! -d node_modules && echo "node_modules absent, as expected"
