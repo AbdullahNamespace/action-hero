@@ -143,7 +143,7 @@ action-hero/
 **🚀 التسليم**
 
 - [x] **09** — Composite actions
-- [ ] **10** — النشر على Firebase Hosting
+- [x] **10** — النشر على Firebase Hosting
 - [ ] **11** — قنوات معاينة الـ PR
 - [ ] **12** — Reusable workflows
 - [ ] **13** — Environments بموافقات يدوية

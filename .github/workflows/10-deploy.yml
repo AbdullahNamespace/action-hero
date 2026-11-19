@@ -1,0 +1,56 @@
+# ═══════════════════════════════════════════════════════════
+# 🚀 10 — Deploy (النشر الحي على Firebase Hosting)
+# Lesson / الدرس: docs/10-deploy.md · docs/10-deploy.ar.md
+# Concepts: composite action · secrets · vars · concurrency
+# معاينات الـ PR → 11-preview.yml  |  بلا مفاتيح → 14-oidc.yml
+# ───────────────────────────────────────────────────────────
+# المطلوب في Settings → Secrets and variables → Actions:
+#   Secret  : FIREBASE_SERVICE_ACCOUNT  (محتوى JSON كامل)
+#   Variable: FIREBASE_PROJECT_ID       (معرّف المشروع)
+# ═══════════════════════════════════════════════════════════
+name: 10 · Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false # لا نقطع نشرًا جاريًا في منتصفه
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-pnpm
+      - run: pnpm build
+
+      # NestJS خادم وليس موقعًا ثابتًا، لذلك ننشر صفحة بسيطة
+      # (الهدف: تعلّم خطوات النشر نفسها).
+      - name: 🧱 تجهيز موقع ثابت
+        run: |
+          mkdir -p site
+          {
+            echo '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8">'
+            echo '<title>Action Hero</title><h1>🦸 Action Hero</h1>'
+            echo "<p>Commit: ${GITHUB_SHA}</p>"
+            echo "<p>Branch: ${GITHUB_REF_NAME}</p></html>"
+          } > site/index.html
+
+      - name: 🚀 Deploy
+        id: deploy
+        uses: ./.github/actions/deploy-firebase-hosting
+        with:
+          service-account: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          project-id: ${{ vars.FIREBASE_PROJECT_ID }}
+          public-dir: site # channel-id فارغ = نشر حي
+
+      - name: 🔗 الرابط في الملخص
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        run: echo "🔗 $URL" >> "$GITHUB_STEP_SUMMARY"
