@@ -1,0 +1,80 @@
+# Composite action: deploy a folder to Firebase Hosting (live or preview channel)
+# Lesson / الدرس: docs/10-deploy.md · docs/11-previews.md · docs/14-oidc.md
+name: Deploy to Firebase Hosting
+description: Write credentials, deploy to Firebase Hosting, and clean up
+
+inputs:
+  service-account:
+    description: Service-account JSON content. Leave empty to use existing credentials (OIDC, see lesson 14)
+    required: false
+    default: ""
+  project-id:
+    description: Firebase project ID
+    required: true
+  public-dir:
+    description: Folder to publish
+    required: false
+    default: site
+  channel-id:
+    description: Preview channel name. Empty = live deploy
+    required: false
+    default: ""
+  expires:
+    description: Preview channel lifetime
+    required: false
+    default: 7d
+
+outputs:
+  url:
+    description: The deployed URL
+    value: ${{ steps.deploy.outputs.url }}
+
+runs:
+  using: composite
+  steps:
+    # 1) المفتاح → ملف مؤقت (Firebase CLI يقرأ ملفًا). السر عبر env لا داخل run
+    - name: Write credentials
+      if: inputs.service-account != ''
+      shell: bash
+      env:
+        SA_JSON: ${{ inputs.service-account }}
+      run: |
+        CRED="$RUNNER_TEMP/firebase-credentials.json"
+        printf '%s' "$SA_JSON" > "$CRED"
+        echo "GOOGLE_APPLICATION_CREDENTIALS=$CRED" >> "$GITHUB_ENV"
+
+    # 2) إعداد بسيط إن لم يوجد firebase.json
+    - name: Ensure firebase.json
+      shell: bash
+      env:
+        PUBLIC_DIR: ${{ inputs.public-dir }}
+      run: |
+        if [ ! -f firebase.json ]; then
+          printf '{"hosting":{"public":"%s"}}\n' "$PUBLIC_DIR" > firebase.json
+        fi
+
+    # 3) نشر حي أو قناة معاينة حسب channel-id
+    - name: Deploy
+      id: deploy
+      shell: bash
+      env:
+        PROJECT: ${{ inputs.project-id }}
+        CHANNEL: ${{ inputs.channel-id }}
+        EXPIRES: ${{ inputs.expires }}
+      run: |
+        if [ -n "$CHANNEL" ]; then
+          OUT=$(npx --yes firebase-tools hosting:channel:deploy "$CHANNEL" \
+            --project "$PROJECT" --expires "$EXPIRES" --json)
+          URL=$(echo "$OUT" | jq -r '.result | to_entries[0].value.url')
+        else
+          npx --yes firebase-tools deploy --only hosting --project "$PROJECT"
+          URL="https://${PROJECT}.web.app"
+        fi
+        echo "url=$URL" >> "$GITHUB_OUTPUT"
+        echo "🔗 $URL"
+
+    # 4) لا يبقى سر على الـ runner
+    - name: Cleanup
+      if: always() && inputs.service-account != ''
+      shell: bash
+      run: rm -f "$RUNNER_TEMP/firebase-credentials.json"
