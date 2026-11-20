@@ -28,6 +28,8 @@ Group names are expressions — one group per branch / PR / environment.
 | CI, tests, previews | `true`  | only the latest commit matters |
 | **Deploys**         | `false` | never cut a deploy in half     |
 
+> **Why not cancel a deploy?** A deploy has several steps (upload files, run migrations, switch versions). Cutting it midway can leave the live site half-updated (new files with an old database). With `false`, the running deploy finishes, then only the newest waiting run executes; intermediate versions are skipped, not deployed.
+
 It works at workflow level (whole run) or job level (that job only — see the `queued` job).
 
 ## Timeouts
