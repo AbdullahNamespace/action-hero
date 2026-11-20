@@ -14,9 +14,26 @@ PR opened/updated → build → deploy to channel pr-<number> → comment the UR
                               expires after 7 days
 ```
 
+## The general concept: Preview Environments
+
+"A temporary URL per PR" is not a Firebase-only idea. It is generally called a **Preview Environment** (or Ephemeral Environment), and each platform has its own name for it:
+
+| Platform                  | Their name                       | Note                                                               |
+| ------------------------- | -------------------------------- | ------------------------------------------------------------------ |
+| Firebase Hosting          | Preview Channels                 | we deploy it ourselves in this lesson via `hosting:channel:deploy` |
+| Vercel                    | Preview Deployments              | automatic once the repo is connected                               |
+| Netlify                   | Deploy Previews                  | automatic; also supports Branch Deploys                            |
+| Cloudflare Pages          | Preview Deployments              | automatic for every branch and PR                                  |
+| AWS Amplify               | Pull Request Previews            | enabled in the app settings                                        |
+| Azure Static Web Apps     | Staging Environments             | created per PR by the workflow                                     |
+| Kubernetes (ArgoCD, etc.) | Ephemeral / Preview Environments | a full environment (app + database) per PR                         |
+
+> The name differs, the idea is the same: **own URL + limited lifetime + never touches the live site.**
+> Some platforms (Vercel, Netlify) do this with no workflow at all; others (Firebase) need us to build it, as this lesson does.
+
 ## Key parts
 
-**Channel** — a preview version of the site with its own URL:
+**Channel** — Firebase's term for a preview: a version of the site with its own URL:
 
 ```yaml
 - uses: ./.github/actions/deploy-firebase-hosting
@@ -27,15 +44,15 @@ PR opened/updated → build → deploy to channel pr-<number> → comment the UR
 
 Redeploying to the same channel updates it. Expired channels disappear; delete one earlier with `firebase hosting:channel:delete pr-12 --project <id>`.
 
-**Comment** — needs `pull-requests: write`. `--edit-last` updates one comment instead of adding a new one per push:
+**Comment** — needs `pull-requests: write`, plus a token passed to `gh` via `GH_TOKEN`. `--edit-last` updates **the last comment written by the same user** (here, the bot) instead of adding a new one per push:
 
 ```bash
 gh pr comment "$PR" --edit-last --body "$BODY" || gh pr comment "$PR" --body "$BODY"
 ```
 
-**Concurrency** — one group per PR; a new push cancels the older preview (safe: it's not the live site).
+**Concurrency** — one group per PR; a new push cancels the older preview (`cancel-in-progress: true`), which is safe because it is not the live site. For the difference between cancelling and queueing, and why live deploys must not be cancelled, see [08 — Concurrency & Timeouts](08-concurrency-timeouts.md).
 
-## 🔒 Forks and secrets
+## Forks and secrets
 
 | Trigger               | Secrets for fork PRs | Verdict                                   |
 | --------------------- | -------------------- | ----------------------------------------- |
@@ -50,6 +67,7 @@ if: github.event.pull_request.head.repo.full_name == github.repository
 
 - Fork PR → empty secret → deploy fails ([mistakes #17](mistakes-log.md)).
 - Missing `pull-requests: write` → `Resource not accessible by integration`.
+- Forgetting `GH_TOKEN` → `gh` fails because it finds no token.
 - Comments piling up: use `--edit-last`.
 
 ## Exercise
