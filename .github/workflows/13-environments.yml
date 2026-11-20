@@ -1,0 +1,54 @@
+# ═══════════════════════════════════════════════════════════
+# 🛡️ 13 — Environments & Approvals (البيئات والموافقات)
+# Lesson / الدرس: docs/13-environments.md · docs/13-environments.ar.md
+# Concepts: environment · required reviewers · environment secrets/vars
+# ───────────────────────────────────────────────────────────
+# الإعداد: Settings → Environments
+#   staging    : بلا حماية
+#   production : أضف Required reviewers (أنت) + (اختياري) Deployment branches = main
+#   سر/متغير اختياري في كل بيئة باسم ENV_SECRET / ENV_NAME بقيمة مختلفة
+# ═══════════════════════════════════════════════════════════
+name: 13 · Environments
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [".github/workflows/13-environments.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: env-demo
+  cancel-in-progress: false
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    environment:
+      name: staging # يُنشأ تلقائيًا (بلا حماية) إن لم يوجد
+      url: https://staging.example.com
+    env:
+      ENV_SECRET: ${{ secrets.ENV_SECRET }} # سر البيئة، لا سر المستودع
+      ENV_NAME: ${{ vars.ENV_NAME }}
+    steps:
+      - name: 🚧 نشر staging (تلقائي)
+        run: |
+          echo "env var    : ${ENV_NAME:-<not set>}"
+          if [ -n "$ENV_SECRET" ]; then echo "env secret : present"; else echo "env secret : not set"; fi
+
+  production:
+    needs: staging # بعد نجاح staging
+    runs-on: ubuntu-latest
+    environment:
+      name: production # ⏸️ ينتظر موافقة المراجعين قبل أن يبدأ
+      url: https://example.com
+    env:
+      ENV_SECRET: ${{ secrets.ENV_SECRET }}
+      ENV_NAME: ${{ vars.ENV_NAME }}
+    steps:
+      - name: 🚀 نشر production (بعد الموافقة)
+        run: |
+          echo "env var    : ${ENV_NAME:-<not set>}"
+          if [ -n "$ENV_SECRET" ]; then echo "env secret : present"; else echo "env secret : not set"; fi
