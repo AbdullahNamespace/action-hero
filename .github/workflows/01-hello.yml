@@ -15,7 +15,7 @@ jobs: # 3) ماذا يعمل؟
     runs-on: ubuntu-latest
     steps: # 4) الخطوات بالترتيب
       - name: 👋 run — أمر shell
-        run: echo "Hello from Action Hero 🦸"
+        run: echo "Hello from Learn GitHub Actions by Practice 📚"
 
       - name: 📂 قبل checkout — المجلد فارغ
         run: ls -la

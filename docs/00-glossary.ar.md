@@ -125,18 +125,18 @@
 
 ## 🏆 الإنتاج والمتقدم
 
-| المصطلح                          | المعنى                                                                          | مثال                            | الدرس                                 |
-| -------------------------------- | ------------------------------------------------------------------------------- | ------------------------------- | ------------------------------------- |
-| **OIDC**                         | OpenID Connect: يثبت الـ workflow هويته للسحابة بتوكن قصير العمر بدل مفتاح ثابت | —                               | [14](14-oidc.ar.md)                   |
-| **`id-token: write`**            | صلاحية تسمح للـ job بطلب توكن OIDC                                              | `permissions: id-token: write`  | [14](14-oidc.ar.md)                   |
-| **Workload Identity Federation** | ربط هوية GitHub بحساب خدمة في Google Cloud دون مفاتيح                           | WIF                             | [14](14-oidc.ar.md)                   |
-| **Tag**                          | علامة ثابتة على commit معيّن، تُستخدم للإصدارات                                 | `v1.0.0`                        | [15](15-release-custom-actions.ar.md) |
-| **Release**                      | إصدار منشور على GitHub مرتبط بـ tag وملفات ووصف                                 | —                               | [15](15-release-custom-actions.ar.md) |
-| **GHCR**                         | GitHub Container Registry: مستودع صور Docker من GitHub                          | `ghcr.io/<user>/action-hero`    | [15](15-release-custom-actions.ar.md) |
-| **Marketplace**                  | متجر GitHub للـ actions الجاهزة التي ينشرها الآخرون                             | —                               | [15](15-release-custom-actions.ar.md) |
-| **Third-party action**           | action من خارج `actions/*`؛ كود غير موثوق فيُفضَّل تثبيته بـ SHA                | `uses: owner/repo@<sha>`        | [15](15-release-custom-actions.ar.md) |
-| **Custom Action**                | action بـ JavaScript أو Docker (أقوى وأعقد من composite)                        | `.github/actions/hello-custom`  | [15](15-release-custom-actions.ar.md) |
-| **Dependabot**                   | أداة تفتح PR تلقائيًا لتحديث الاعتماديات والـ actions                           | `.github/dependabot.yml`        | [15](15-release-custom-actions.ar.md) |
-| **Pinning by SHA**               | تثبيت الـ action بمعرّف commit كامل بدل tag قابل للتغيّر                        | `uses: actions/checkout@<sha>`  | [15](15-release-custom-actions.ar.md) |
-| **Container job**                | job كامل يعمل داخل صورة Docker (`container:`)                                   | `container: { image: node:24 }` | [15](15-release-custom-actions.ar.md) |
-| **`docker://` step**             | step واحد يعمل داخل صورة Docker جاهزة                                           | `uses: docker://alpine:3`       | [15](15-release-custom-actions.ar.md) |
+| المصطلح                          | المعنى                                                                          | مثال                                              | الدرس                                 |
+| -------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------- | ------------------------------------- |
+| **OIDC**                         | OpenID Connect: يثبت الـ workflow هويته للسحابة بتوكن قصير العمر بدل مفتاح ثابت | —                                                 | [14](14-oidc.ar.md)                   |
+| **`id-token: write`**            | صلاحية تسمح للـ job بطلب توكن OIDC                                              | `permissions: id-token: write`                    | [14](14-oidc.ar.md)                   |
+| **Workload Identity Federation** | ربط هوية GitHub بحساب خدمة في Google Cloud دون مفاتيح                           | WIF                                               | [14](14-oidc.ar.md)                   |
+| **Tag**                          | علامة ثابتة على commit معيّن، تُستخدم للإصدارات                                 | `v1.0.0`                                          | [15](15-release-custom-actions.ar.md) |
+| **Release**                      | إصدار منشور على GitHub مرتبط بـ tag وملفات ووصف                                 | —                                                 | [15](15-release-custom-actions.ar.md) |
+| **GHCR**                         | GitHub Container Registry: مستودع صور Docker من GitHub                          | `ghcr.io/<user>/learn-github-actions-by-practice` | [15](15-release-custom-actions.ar.md) |
+| **Marketplace**                  | متجر GitHub للـ actions الجاهزة التي ينشرها الآخرون                             | —                                                 | [15](15-release-custom-actions.ar.md) |
+| **Third-party action**           | action من خارج `actions/*`؛ كود غير موثوق فيُفضَّل تثبيته بـ SHA                | `uses: owner/repo@<sha>`                          | [15](15-release-custom-actions.ar.md) |
+| **Custom Action**                | action بـ JavaScript أو Docker (أقوى وأعقد من composite)                        | `.github/actions/hello-custom`                    | [15](15-release-custom-actions.ar.md) |
+| **Dependabot**                   | أداة تفتح PR تلقائيًا لتحديث الاعتماديات والـ actions                           | `.github/dependabot.yml`                          | [15](15-release-custom-actions.ar.md) |
+| **Pinning by SHA**               | تثبيت الـ action بمعرّف commit كامل بدل tag قابل للتغيّر                        | `uses: actions/checkout@<sha>`                    | [15](15-release-custom-actions.ar.md) |
+| **Container job**                | job كامل يعمل داخل صورة Docker (`container:`)                                   | `container: { image: node:24 }`                   | [15](15-release-custom-actions.ar.md) |
+| **`docker://` step**             | step واحد يعمل داخل صورة Docker جاهزة                                           | `uses: docker://alpine:3`                         | [15](15-release-custom-actions.ar.md) |

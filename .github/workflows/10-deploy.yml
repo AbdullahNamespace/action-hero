@@ -37,7 +37,7 @@ jobs:
           mkdir -p site
           {
             echo '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8">'
-            echo '<title>Action Hero</title><h1>🦸 Action Hero</h1>'
+            echo '<title>Learn GitHub Actions by Practice</title><h1>📚 Learn GitHub Actions by Practice</h1>'
             echo "<p>Commit: ${GITHUB_SHA}</p>"
             echo "<p>Branch: ${GITHUB_REF_NAME}</p></html>"
           } > site/index.html

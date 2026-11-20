@@ -1,6 +1,6 @@
 🌐 [English](README.md) · **العربية**
 
-# 🦸 Action Hero
+# 📚 Learn GitHub Actions by Practice
 
 ![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-Learning-blue?logo=githubactions&logoColor=white)
 ![Status](https://img.shields.io/badge/status-learning%20in%20progress-yellow)
@@ -10,7 +10,7 @@
 
 ## 🎯 عن المشروع
 
-**Action Hero** ساحة تجاربي الشخصية لإتقان GitHub Actions.
+**Learn GitHub Actions by Practice** ساحة تجاربي الشخصية لإتقان GitHub Actions.
 كل مرحلة لها ملفان: workflow قابل للتشغيل في `.github/workflows/NN-*.yml`
 ودرس في `docs/NN-*.ar.md` (الإنجليزي: `docs/NN-*.md`).
 
@@ -73,7 +73,7 @@
 ## 🗂️ هيكل المشروع
 
 ```
-action-hero/
+learn-github-actions-by-practice/
 ├── .github/
 │   ├── actions/                     # composite و actions مخصصة
 │   │   ├── setup-pnpm/
