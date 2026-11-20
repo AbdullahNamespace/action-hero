@@ -1,0 +1,63 @@
+# ═══════════════════════════════════════════════════════════
+# 👀 11 — Previews (معاينة كل PR)
+# Lesson / الدرس: docs/11-previews.md · docs/11-previews.ar.md
+# Concepts: preview channel · expires · PR comment · fork safety
+# ───────────────────────────────────────────────────────────
+# Secret  : FIREBASE_SERVICE_ACCOUNT
+# Variable: FIREBASE_PROJECT_ID
+# ═══════════════════════════════════════════════════════════
+name: 11 · Preview
+
+on:
+  pull_request: # لا pull_request_target (يعطي أسرارًا لكود غير موثوق)
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write # للتعليق على الـ PR
+
+# PR جديد push يلغي المعاينة القديمة لنفس الـ PR (آمن هنا: ليست نشرًا حيًا)
+concurrency:
+  group: preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    # PRs القادمة من forks لا تحصل على الأسرار → نتخطاها
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-pnpm
+      - run: pnpm build
+
+      - name: 🧱 تجهيز موقع ثابت
+        run: |
+          mkdir -p site
+          {
+            echo '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8">'
+            echo '<title>Preview</title><h1>👀 Preview</h1>'
+            echo "<p>Commit: ${GITHUB_SHA}</p>"
+            echo "<p>Branch: ${GITHUB_HEAD_REF}</p></html>"
+          } > site/index.html
+
+      - name: 🚀 نشر على قناة pr-<رقم>
+        id: deploy
+        uses: ./.github/actions/deploy-firebase-hosting
+        with:
+          service-account: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          project-id: ${{ vars.FIREBASE_PROJECT_ID }}
+          public-dir: site
+          channel-id: pr-${{ github.event.pull_request.number }}
+          expires: 7d
+
+      # تعليق واحد يُحدَّث بدل تعليق جديد مع كل push
+      - name: 💬 تعليق الرابط على الـ PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          BODY="👀 **Preview ready:** $URL (expires in 7 days)"
+          gh pr comment "$PR" --edit-last --body "$BODY" \
+            || gh pr comment "$PR" --body "$BODY"
