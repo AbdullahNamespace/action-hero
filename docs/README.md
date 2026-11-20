@@ -145,7 +145,7 @@ action-hero/
 - [x] **09** — Composite actions
 - [x] **10** — Deploying to Firebase Hosting
 - [x] **11** — PR preview channels
-- [ ] **12** — Reusable workflows
+- [x] **12** — Reusable workflows
 - [ ] **13** — Environments with manual approvals
 
 **🏆 Production**

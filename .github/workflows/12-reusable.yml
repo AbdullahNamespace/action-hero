@@ -1,0 +1,43 @@
+# ═══════════════════════════════════════════════════════════
+# ♻️ 12 — Reusable Workflows (المُستدعي / the caller)
+# Lesson / الدرس: docs/12-reusable-workflows.md · docs/12-reusable-workflows.ar.md
+# Concepts: workflow_call · uses at job level · inputs · outputs · secrets: inherit
+# ═══════════════════════════════════════════════════════════
+name: 12 · Reusable
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/12-*.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # الاستدعاء على مستوى الـ job (uses) — لا steps هنا
+  lint:
+    uses: ./.github/workflows/12-reusable-called.yml
+    with:
+      script: lint
+    secrets: inherit # تمرير كل أسرار المستدعي
+
+  test-22:
+    uses: ./.github/workflows/12-reusable-called.yml
+    with:
+      script: test
+      node-version: "22"
+
+  test-24:
+    uses: ./.github/workflows/12-reusable-called.yml
+    with:
+      script: test
+      node-version: "24"
+
+  # قراءة output من الـ workflow المُستدعى
+  report:
+    needs: [lint, test-22, test-24]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "pnpm used = ${{ needs.lint.outputs.pnpm-version }}"
