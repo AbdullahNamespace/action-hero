@@ -146,7 +146,7 @@ learn-github-actions-by-practice/
 - [x] **10** — Deploying to Firebase Hosting
 - [x] **11** — PR preview channels
 - [x] **12** — Reusable workflows
-- [ ] **13** — Environments with manual approvals
+- [x] **13** — Environments with manual approvals
 
 **🏆 Production**
 
