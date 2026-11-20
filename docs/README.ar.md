@@ -146,7 +146,7 @@ learn-github-actions-by-practice/
 - [x] **10** — النشر على Firebase Hosting
 - [x] **11** — قنوات معاينة الـ PR
 - [x] **12** — Reusable workflows
-- [ ] **13** — Environments بموافقات يدوية
+- [x] **13** — Environments بموافقات يدوية
 
 **🏆 الإنتاج**
 
