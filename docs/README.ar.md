@@ -145,7 +145,7 @@ action-hero/
 - [x] **09** — Composite actions
 - [x] **10** — النشر على Firebase Hosting
 - [x] **11** — قنوات معاينة الـ PR
-- [ ] **12** — Reusable workflows
+- [x] **12** — Reusable workflows
 - [ ] **13** — Environments بموافقات يدوية
 
 **🏆 الإنتاج**

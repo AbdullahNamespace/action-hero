@@ -1,0 +1,45 @@
+# ═══════════════════════════════════════════════════════════
+# ♻️ 12 — Reusable workflow (المُستدعى / the called one)
+# Lesson / الدرس: docs/12-reusable-workflows.md · docs/12-reusable-workflows.ar.md
+# يجب أن يبقى في .github/workflows/ مباشرة (لا مجلدات فرعية)
+# ═══════════════════════════════════════════════════════════
+name: 12 · Reusable (called)
+
+on:
+  workflow_call: # هذا ما يجعله قابلًا للاستدعاء
+    inputs:
+      script:
+        description: اسم سكربت pnpm (lint, test, build …)
+        type: string
+        required: true
+      node-version:
+        description: إصدار Node
+        type: string
+        default: "22"
+    outputs:
+      pnpm-version:
+        description: إصدار pnpm المثبّت
+        value: ${{ jobs.run.outputs.pnpm-version }}
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    outputs:
+      pnpm-version: ${{ steps.setup.outputs.pnpm-version }}
+    env:
+      SCRIPT: ${{ inputs.script }}
+      # يصل فقط عند استدعائه بـ secrets: inherit
+      DEMO_SECRET: ${{ secrets.DEMO_SECRET }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: setup
+        uses: ./.github/actions/setup-pnpm
+        with:
+          node-version: ${{ inputs.node-version }}
+      - run: pnpm run "$SCRIPT"
+      - name: 🔑 هل وصل السر؟
+        run: |
+          if [ -n "$DEMO_SECRET" ]; then echo "secret received"; else echo "no secret"; fi
